@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Penjualan Owner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex min-h-screen">
+
+  <!-- Main Container -->
+  <div class="w-screen h-screen px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Header Section -->
+    <div class="flex items-center justify-center space-x-3">
+      <h1 class="text-2xl font-bold text-black">Laporan Penjualan</h1>
+      <button id="month-select-button">
+        <img src="img/mockup.png" alt="Filter Icon" class="w-10 h-10 cursor-pointer">
+      </button>
+      <p id="report-month" class="text-lg font-medium text-gray-600 ml-3"></p>
+    </div>
+
+    <!-- Month Selector Popup -->
+    <div id="month-popup" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+      <div class="bg-white rounded-lg p-6 w-96">
+        <h2 class="text-lg font-bold text-gray-700 mb-4">Pilih Bulan</h2>
+        <select id="month-select" class="w-full border border-gray-300 rounded-lg p-2 mb-4">
+          <option value="2025-01">Januari 2025</option>
+          <option value="2024-12">Desember 2024</option>
+          <option value="2024-11">November 2024</option>
+          <option value="2024-10">Oktober 2024</option>
+          <option value="2024-09">September 2024</option>
+        </select>
+        <div class="flex justify-end space-x-4">
+          <button id="close-popup" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+          <button id="apply-month" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Terapkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg mb-4">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="px-4 py-2 border border-gray-300 text-left">ID</th>
+            <th class="px-4 py-2 border border-gray-300 text-left">Nama Barang</th>
+            <th class="px-4 py-2 border border-gray-300 text-right">Harga</th>
+            <th class="px-4 py-2 border border-gray-300 text-right">Jumlah</th>
+            <th class="px-4 py-2 border border-gray-300 text-right">Total Penjualan</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Items will be dynamically added here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total Section -->
+    <div class="flex items-center justify-between">
+      <button class="bg-green-500 text-white px-4 py-2 rounded-lg">Export File</button>
+      <div class="bg-gray-200 p-2 rounded-lg">
+        <p class="text-gray-700 font-medium">Total Penjualan: <span id="total-price" class="font-bold">Rp.0</span></p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const tableBody = document.getElementById("table-body");
+    const totalPriceElement = document.getElementById("total-price");
+    const reportMonth = document.getElementById("report-month");
+
+    // Example sales data for Seblak items for each month
+    const salesData = {
+      "2025-01": [
+        { id: "001", name: "Seblak Komplit", qty: 120, price: 15000 },
+        { id: "002", name: "Seblak Komplit Pedas", qty: 80, price: 20000 },
+        { id: "003", name: "Dumpling", qty: 200, price: 3000 }
+      ],
+      "2024-12": [
+        { id: "004", name: "Seblak Komplit", qty: 150, price: 15000 },
+        { id: "005", name: "Seblak Komplit Pedas", qty: 60, price: 20000 },
+        { id: "006", name: "Dumpling", qty: 220, price: 3000 },
+        { id: "007", name: "Mie Goreng", qty: 100, price: 5000 }
+      ],
+      "2024-11": [
+        { id: "008", name: "Seblak Komplit", qty: 110, price: 15000 },
+        { id: "009", name: "Seblak Komplit Pedas", qty: 90, price: 20000 },
+        { id: "010", name: "Bakso", qty: 130, price: 8000 }
+      ],
+      "2024-10": [
+        { id: "011", name: "Seblak Komplit", qty: 140, price: 15000 },
+        { id: "012", name: "Seblak Komplit Pedas", qty: 70, price: 20000 },
+        { id: "013", name: "Sate", qty: 120, price: 12000 }
+      ],
+      "2024-09": [
+        { id: "014", name: "Seblak Komplit", qty: 160, price: 15000 },
+        { id: "015", name: "Seblak Komplit Pedas", qty: 50, price: 20000 },
+        { id: "016", name: "Dumpling", qty: 210, price: 3000 },
+        { id: "017", name: "Nasi Goreng", qty: 90, price: 7000 }
+      ]
+    };
+
+    // Function to fetch data (simulate from backend)
+    async function fetchData(month) {
+      // Returning mock data based on month
+      return salesData[month] || [];
+    }
+
+    // Function to populate table with data
+    async function populateTable(month) {
+      const items = await fetchData(month);
+      let totalPrice = 0;
+      tableBody.innerHTML = "";
+
+      items.forEach(item => {
+        const totalSales = item.qty * item.price;
+        totalPrice += totalSales;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="px-4 py-2 border border-gray-300 text-sm text-gray-700">${item.id}</td>
+          <td class="px-4 py-2 border border-gray-300 text-sm text-gray-700">${item.name}</td>
+          <td class="px-4 py-2 border border-gray-300 text-sm text-right text-gray-700">Rp.${new Intl.NumberFormat('id-ID').format(item.price)}</td>
+          <td class="px-4 py-2 border border-gray-300 text-sm text-right text-gray-700">${item.qty}</td>
+          <td class="px-4 py-2 border border-gray-300 text-sm text-right text-gray-700">Rp.${new Intl.NumberFormat('id-ID').format(totalSales)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      totalPriceElement.textContent = `Rp.${new Intl.NumberFormat('id-ID').format(totalPrice)}`;
+      reportMonth.textContent = new Date(`${month}-01`).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+    }
+
+    // Event listeners for the popup
+    document.getElementById("month-select-button").addEventListener("click", () => {
+      document.getElementById("month-popup").classList.remove("hidden");
+    });
+
+    document.getElementById("close-popup").addEventListener("click", () => {
+      document.getElementById("month-popup").classList.add("hidden");
+    });
+
+    document.getElementById("apply-month").addEventListener("click", () => {
+      const selectedMonth = document.getElementById("month-select").value;
+      populateTable(selectedMonth);
+      document.getElementById("month-popup").classList.add("hidden");
+    });
+
+    // Initial load for the current month
+    const initialMonth = new Date().toISOString().slice(0, 7);
+    populateTable(initialMonth);
+  </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Stok Owner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex min-h-screen">
+
+  <!-- Main Container -->
+  <div class="w-screen h-screen px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Header Section -->
+    <div class="flex items-center justify-center space-x-3">
+      <h1 class="text-2xl font-bold text-black">Laporan Stok</h1>
+      <button id="month-select-button">
+        <img src="img/mockup.png" alt="Filter Icon" class="w-10 h-10 cursor-pointer">
+      </button>
+      <p id="report-month" class="text-lg font-medium text-gray-600 ml-3"></p>
+    </div>
+
+    <!-- Month Selector Popup -->
+    <div id="month-popup" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+      <div class="bg-white rounded-lg p-6 w-96">
+        <h2 class="text-lg font-bold text-gray-700 mb-4">Pilih Bulan</h2>
+        <select id="month-select" class="w-full border border-gray-300 rounded-lg p-2 mb-4">
+          <option value="2025-01">Januari 2025</option>
+          <option value="2024-12">Desember 2024</option>
+          <option value="2024-11">November 2024</option>
+          <option value="2024-10">Oktober 2024</option>
+        </select>
+        <div class="flex justify-end space-x-4">
+          <button id="close-popup" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+          <button id="apply-month" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Terapkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg">
+        <thead class="bg-gray-200">
+          <tr>
+            <th rowspan="2" class="px-4 py-2 border border-gray-300 text-center">ID</th>
+            <th rowspan="2" class="px-4 py-2 border border-gray-300 text-center">Nama Barang</th>
+            <th rowspan="2" class="px-4 py-2 border border-gray-300 text-center">Harga</th>
+            <th rowspan="2" class="px-4 py-2 border border-gray-300 text-center">Kategori</th>
+            <th colspan="4" class="px-4 py-2 border border-gray-300 text-center">Stok</th>
+          </tr>
+          <tr>
+            <th class="px-4 py-2 border border-gray-300 text-center">Awal</th>
+            <th class="px-4 py-2 border border-gray-300 text-center">Masuk</th>
+            <th class="px-4 py-2 border border-gray-300 text-center">Keluar</th>
+            <th class="px-4 py-2 border border-gray-300 text-center">Akhir</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Items will be dynamically added here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer Section with Export Button -->
+    <div class="flex items-center justify-between">
+      <button id="export-button" class="bg-green-500 text-white px-4 py-2 rounded-lg">Export File</button>
+    </div>
+  </div>
+
+  <script>
+    const tableBody = document.getElementById("table-body");
+    const reportMonth = document.getElementById("report-month");
+    const monthSelect = document.getElementById("month-select");
+
+    // Example stock data for different months
+    const stockData = {
+      "2025-01": [
+        { id: "001", name: "Seblak Komplit", price: 15000, category: "Makanan", awal: 100, masuk: 50, keluar: 40, akhir: 110 },
+        { id: "002", name: "Seblak Komplit Pedas", price: 20000, category: "Makanan", awal: 80, masuk: 30, keluar: 20, akhir: 90 }
+      ],
+      "2024-12": [
+        { id: "003", name: "Dumpling", price: 3000, category: "Topping", awal: 200, masuk: 100, keluar: 150, akhir: 150 },
+        { id: "004", name: "Jamur Enoki", price: 2000, category: "Topping", awal: 150, masuk: 50, keluar: 30, akhir: 170 }
+      ]
+    };
+
+    // Populate table based on selected month
+    function populateTable(month) {
+      const items = stockData[month] || [];
+      tableBody.innerHTML = "";
+
+      items.forEach(item => {
+        const row = document.createElement("tr");
+        row.classList.add("hover:bg-gray-50");
+        row.innerHTML = `
+          <td class="px-4 py-2 border border-gray-300 text-center text-sm text-gray-700">${item.id}</td>
+          <td class="px-4 py-2 border border-gray-300 text-sm text-gray-700">${item.name}</td>
+          <td class="px-4 py-2 border border-gray-300 text-right text-sm text-gray-700">Rp.${new Intl.NumberFormat('id-ID').format(item.price)}</td>
+          <td class="px-4 py-2 border border-gray-300 text-center text-sm text-gray-700">${item.category}</td>
+          <td class="px-4 py-2 border border-gray-300 text-right text-sm text-gray-700">${item.awal}</td>
+          <td class="px-4 py-2 border border-gray-300 text-right text-sm text-gray-700">${item.masuk}</td>
+          <td class="px-4 py-2 border border-gray-300 text-right text-sm text-gray-700">${item.keluar}</td>
+          <td class="px-4 py-2 border border-gray-300 text-right text-sm text-gray-700">${item.akhir}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      reportMonth.textContent = new Date(`${month}-01`).toLocaleString("id-ID", { month: "long", year: "numeric" });
+    }
+
+    // Export table data to CSV
+    function exportToCSV(month) {
+      const items = stockData[month] || [];
+      let csvContent = "ID,Nama Barang,Harga,Kategori,Stok Awal,Stok Masuk,Stok Keluar,Stok Akhir\n";
+
+      items.forEach(item => {
+        csvContent += `${item.id},${item.name},${item.price},${item.category},${item.awal},${item.masuk},${item.keluar},${item.akhir}\n`;
+      });
+
+      // Create a downloadable CSV file
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Laporan_Stok_${month}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Event listeners for the popup
+    document.getElementById("month-select-button").addEventListener("click", () => {
+      document.getElementById("month-popup").classList.remove("hidden");
+    });
+
+    document.getElementById("close-popup").addEventListener("click", () => {
+      document.getElementById("month-popup").classList.add("hidden");
+    });
+
+    document.getElementById("apply-month").addEventListener("click", () => {
+      const selectedMonth = monthSelect.value;
+      populateTable(selectedMonth);
+      document.getElementById("month-popup").classList.add("hidden");
+    });
+
+    // Export button listener
+    document.getElementById("export-button").addEventListener("click", () => {
+      const selectedMonth = monthSelect.value || "2025-01";
+      exportToCSV(selectedMonth);
+    });
+
+    // Initial load
+    const initialMonth = "2025-01";
+    populateTable(initialMonth);
+  </script>
+</body>
+</html>

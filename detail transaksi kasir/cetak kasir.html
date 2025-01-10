@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen w-screen bg-gray-100 flex justify-center items-center m-0 p-0">
+  <div class="main bg-white shadow-lg w-screen h-screen">
+    <!-- Transaction Details -->
+    <div class="transaction-details p-6">
+      <div class="customer-info mb-6">
+        <div class="mb-4">
+          <label for="responsive-textbox" class="block font-bold text-gray-700 mb-1">Nama Pelanggan:</label>
+          <input id="responsive-textbox" type="text" placeholder="Type here..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label for="waktu-transaksi" class="block font-bold text-gray-700 mb-1">Waktu Transaksi:</label>
+          <input id="waktu-transaksi" type="date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+      </div>
+
+      <table class="table-auto w-full border-collapse border border-gray-300 rounded-lg mb-4">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="px-4 py-2 border border-gray-300 text-left">Item</th>
+            <th class="px-4 py-2 border border-gray-300 text-left">Qty</th>
+            <th class="px-4 py-2 border border-gray-300 text-left">Harga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Items will be dynamically added here -->
+        </tbody>
+      </table>
+
+      <div class="total flex justify-between items-center mb-6">
+        <p class="text-xl font-bold text-gray-700">Total: <span id="total-price" class="text-green-600">Rp.0</span></p>
+        <button class="print bg-blue-500 text-white px-6 py-2 rounded-lg text-lg font-bold hover:bg-blue-600 focus:ring-4 focus:ring-blue-400">
+          Cetak
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dynamically load items into the table and calculate total price
+    const items = [
+      { id: "item1", name: "Seblak Komplit", qty: 1, price: 15000 },
+      { id: "item2", name: "Dumpling", qty: 4, price: 5000 },
+      { id: "item3", name: "Jamur Enoki", qty: 2, price: 3000 },
+      { id: "item4", name: "Baso Ikan", qty: 3, price: 2000 },
+      { id: "item5", name: "Sosis", qty: 5, price: 1000 },
+    ];
+
+    let totalPrice = 0; // Variable to store the total price
+
+    // Append items to the table and calculate the total
+    items.forEach(item => {
+      // Calculate the item's total price
+      const itemTotal = item.qty * item.price;
+      totalPrice += itemTotal;
+
+      // Create a new table row
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="px-4 py-2 border border-gray-300 flex items-center">
+          <div class="w-12 h-12 bg-gray-200 rounded-lg mr-2" id="${item.id}" style="background-size: cover; background-position: center;"></div>
+          ${item.name}
+        </td>
+        <td class="px-4 py-2 border border-gray-300">${item.qty}</td>
+        <td class="px-4 py-2 border border-gray-300">Rp.${new Intl.NumberFormat('id-ID').format(itemTotal)}</td>
+      `;
+
+      // Append the row to the table body
+      document.querySelector("tbody").appendChild(row);
+    });
+
+    // Display the total price in the "Total" section
+    document.getElementById("total-price").textContent = `Rp.${new Intl.NumberFormat('id-ID').format(totalPrice)}`;
+  </script>
+</body>
+</html>

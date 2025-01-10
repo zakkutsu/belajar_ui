@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Transaksi Kasir </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen w-screen flex font-sans">
+  <div class=" flex w-full h-full">
+    <!-- Main Content -->
+    <main class="flex-grow bg-gray-100 p-5 w-full">
+      <!-- Product Grid -->
+      <section class="products grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div 
+        class="product-card bg-white p-5 rounded-lg shadow text-center" 
+        data-id="item1" 
+        data-name="Seblak Komplit" 
+        data-price="15000">
+        <img src="https://via.placeholder.com/150" alt="Seblak Komplit" class="w-full rounded mb-3">
+        <p class="text-gray-800">Seblak Komplit<br><strong class="text-black">Rp.15.000</strong></p>
+        <div class="quantity-controls flex justify-center items-center mt-3">
+          <button class="decrement bg-gray-300 px-3 py-1 rounded-lg text-lg font-bold">-</button>
+          <span class="quantity mx-3 font-bold">1</span>
+          <button class="increment bg-gray-300 px-3 py-1 rounded-lg text-lg font-bold">+</button>
+        </div>
+      </div>
+      
+
+      <div 
+      class="product-card bg-white p-5 rounded-lg shadow text-center" 
+      data-id="item2" 
+      data-name="Dumpling" 
+      data-price="5000">
+      <img src="https://via.placeholder.com/150" alt="Dumpling" class="w-full rounded mb-3">
+      <p class="text-gray-800">Dumpling<br><strong class="text-black">Rp.5.000</strong></p>
+      <div class="quantity-controls flex justify-center items-center mt-3">
+        <button class="decrement bg-gray-300 px-3 py-1 rounded-lg text-lg font-bold">-</button>
+        <span class="quantity mx-3 font-bold">1</span>
+        <button class="increment bg-gray-300 px-3 py-1 rounded-lg text-lg font-bold">+</button>
+      </div>
+    </div>
+    
+    <div 
+      class="product-card bg-white p-5 rounded-lg shadow text-center" 
+      data-id="item3" 
+      data-name="Jamur Enoki" 
+      data-price="3000">
+      <img src="https://via.placeholder.com/150" alt="Jamur Enoki" class="w-full rounded mb-3">
+      <p class="text-gray-800">Jamur Enoki<br><strong class="text-black">Rp.3.000</strong></p>
+      <div class="quantity-controls flex justify-center items-center mt-3">
+        <button class="decrement bg-gray-300 px-3 py-1 rounded-lg text-lg font-bold">-</button>
+        <span class="quantity mx-3 font-bold">1</span>
+        <button class="increment bg-gray-300 px-3 py-1 rounded-lg text-lg font-bold">+</button>
+      </div>
+    </div>
+    
+      </section>
+    </main>
+
+    <!-- Cart -->
+    <aside class="cart bg-gray-200 w-1/4 p-5 shadow-lg">
+      <div class="flex items-center space-x-2">
+        <img src="./img/keranjang.svg" alt="a" class="w-9 h-9"> <!-- Adjust the size of the icon -->
+        <h2 class="text-3xl font-bold">Keranjang</h2>
+      </div>
+      <hr class="my-5 border-gray-700" style="height: 5px; background-color: #000000;">
+      <ul class="cart-items list-none p-0 mb-5"></ul>
+      <div class="total mb-5">
+        <p class="text-xl font-bold text-green-600">Total: <span id="total-price">Rp.0</span></p>
+      </div>
+      <button class="pay-btn w-full py-3 bg-blue-500 text-white rounded-lg text-lg font-bold uppercase">Bayar</button>
+    </aside>
+    
+  </div>
+
+  <script>
+    const cart = {}; // Store selected items
+const cartItemsElement = document.querySelector(".cart-items");
+const totalPriceElement = document.getElementById("total-price");
+
+function updateCart(productId, name, price, quantity) {
+  // Add or update the item in the cart
+  if (quantity > 0) {
+    cart[productId] = { name, price, quantity };
+  } else {
+    // Remove the item from the cart if quantity is 0
+    delete cart[productId];
+  }
+  renderCart(); // Re-render the cart whenever the cart is updated
+}
+
+function renderCart() {
+  let totalPrice = 0;
+  cartItemsElement.innerHTML = ""; // Clear the cart UI
+
+  // Loop through all items in the cart and display them
+  for (const productId in cart) {
+    const { name, price, quantity } = cart[productId];
+    const itemTotal = price * quantity; // Calculate the item's total price
+    totalPrice += itemTotal; // Add to the total price
+
+    // Create a list item for the cart
+    const li = document.createElement("li");
+    li.classList.add("flex", "justify-between", "mb-3");
+    li.innerHTML = `
+      ${name} x ${quantity} <span>Rp.${new Intl.NumberFormat("id-ID").format(itemTotal)}</span>
+    `;
+    cartItemsElement.appendChild(li);
+  }
+
+  // Update the total price in the cart
+  totalPriceElement.textContent = `Rp.${new Intl.NumberFormat("id-ID").format(totalPrice)}`;
+}
+
+// Add event listeners to increment and decrement buttons
+document.querySelectorAll(".product-card").forEach((card) => {
+  const productId = card.dataset.id;
+  const name = card.dataset.name;
+  const price = parseInt(card.dataset.price, 10);
+  const decrementButton = card.querySelector(".decrement");
+  const incrementButton = card.querySelector(".increment");
+  const quantityDisplay = card.querySelector(".quantity");
+
+  // Initialize the cart item with the default quantity (1)
+  updateCart(productId, name, price, parseInt(quantityDisplay.textContent, 10));
+
+  // Decrement button functionality
+  decrementButton.addEventListener("click", () => {
+    let quantity = parseInt(quantityDisplay.textContent, 10);
+    if (quantity > 1) {
+      quantity--;
+      quantityDisplay.textContent = quantity;
+      updateCart(productId, name, price, quantity); // Update the cart
+    } else {
+      quantity = 0; // Set quantity to 0 and remove from the cart
+      quantityDisplay.textContent = quantity;
+      updateCart(productId, name, price, quantity);
+    }
+  });
+
+  // Increment button functionality
+  incrementButton.addEventListener("click", () => {
+    let quantity = parseInt(quantityDisplay.textContent, 10);
+    quantity++;
+    quantityDisplay.textContent = quantity;
+    updateCart(productId, name, price, quantity); // Update the cart
+  });
+});
+
+  </script>
+</body>
+</html>
